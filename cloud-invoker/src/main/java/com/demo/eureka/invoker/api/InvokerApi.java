@@ -2,6 +2,8 @@ package com.demo.eureka.invoker.api;
 
 import com.demo.eureka.invoker.feignapi.PersonClient;
 import com.demo.eureka.invoker.hystrix.PersonService;
+import com.demo.eureka.invoker.hystrix.cache.CacheService;
+import com.demo.eureka.invoker.hystrix.collapse.ConllapseServicer;
 import com.demo.eureka.invoker.model.Person;
 import com.demo.eureka.invoker.ribbon.MyLoadBalanced;
 import com.netflix.loadbalancer.ZoneAwareLoadBalancer;
@@ -17,6 +19,9 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
+
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 /**
  * InvokerApi
@@ -152,8 +157,9 @@ public class InvokerApi {
         System.out.println("进入了调用feign的API,实际调用的是feign客户端的接口,在浏览器看结果");
         return personClient.hello();
     }
-    @RequestMapping(value = "/invokerPerson",method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public String invokerPerson(){
+
+    @RequestMapping(value = "/invokerPerson", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    public String invokerPerson() {
         System.out.println("进入了调用feign的API,实际调用的是feign客户端的接口,在浏览器看结果,json格式,id写死的");
         return personClient.personFeign(678).toString();
     }
@@ -161,6 +167,7 @@ public class InvokerApi {
 
     @Autowired
     private PersonService personService;
+
     @RequestMapping(value = "/routerHystrix/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public Person routerHystrix(@PathVariable("id") Integer id) {
 //        服务名称调用
@@ -170,5 +177,71 @@ public class InvokerApi {
         return person;
 
     }
+
+
+    /**
+     * 测试注解缓存的实现情况
+     */
+    @Autowired
+    private CacheService cacheService;
+
+    @RequestMapping(value = "/cachePerson/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    public Person cachePerson(@PathVariable("id") Integer id) {
+//        服务名称调用
+        System.out.println("调用cachePerson去执行getPerson()------注解方式");
+        Person person = null;
+        for (int i = 0; i < 3; i++) {
+            System.out.println("控制器调用服务----" + i);
+            person = cacheService.getPerson(id);
+        }
+        return person;
+
+    }
+
+    /**
+     * 测试缓存和清理缓存
+     */
+    @RequestMapping(value = "/cacheMethod", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    public String cacheMethod() {
+
+        String zxx = cacheService.cacheMethod("张晓祥");
+        System.out.println(zxx);
+        return zxx;
+
+    }
+
+    /**
+     * 测试缓存和清理缓存 update方法
+     */
+    @RequestMapping(value = "/update", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    public String update() {
+
+        String zxx = cacheService.updateMethod();
+        System.out.println(zxx);
+        return zxx;
+    }
+
+    @Autowired
+    private ConllapseServicer servicer;
+
+    /**
+     * 请求合并
+     */
+    @RequestMapping(value = "/collapse", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    public String collapse() throws ExecutionException, InterruptedException {
+//连续执行3次请求
+        Future<Person> f1 = servicer.getSinglePerson(1);
+        Future<Person> f2 = servicer.getSinglePerson(2);
+        Future<Person> f3 = servicer.getSinglePerson(3);
+        Person person = f1.get();
+        Person person2 = f2.get();
+        Person person3 = f3.get();
+        System.out.println(person.toString());
+        System.out.println(person2.toString());
+        System.out.println(person3.toString());
+        return "查看idea控制台";
+
+    }
+
 
 }
