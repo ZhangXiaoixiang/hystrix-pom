@@ -1,0 +1,14 @@
+#为了避免端口号冲突,所以在启动类读取
+#注册服务,相当于写一个bean到容器,交由eureka服务器管理
+spring:
+  application:
+    name: provider
+#服务提供者的地址(现在demo采用本机作为服务提供者的地址)
+eureka:
+  instance:
+    hostname: localhost
+    client:
+#配置服务的注册地址(由于是集群,所以2个服务地址)
+    default-address-resolution-order: http://localhost:8761/eureka/,http://localhost:8762/eureka/
+#    心跳(定时器)时间秒
+    lease-renewal-interval-in-seconds: 10

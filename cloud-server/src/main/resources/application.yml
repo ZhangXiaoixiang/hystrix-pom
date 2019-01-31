@@ -1,0 +1,36 @@
+#eureka集群配置
+#指服务明端口号
+server:
+  port: 8761
+  #由于需要相互注册,所以就也需要配置注册的相关内容
+  #服务映射名称
+spring:
+  application:
+    name: eureka-cloud-server
+  # 搭建集群(代码内部指定.---后指定另一个这里背景色(无法解析)就没有了)
+  profiles: slave1
+eureka:
+  instance:
+    hostname: slave1
+  client:
+    #    注册到下面一个配置
+    default-address-resolution-order: http://slave2:8762/eureka/
+    #    关闭自我保护
+  server:
+    enable-self-preservation: false
+
+---
+#配置另一个服务器
+server:
+  port: 8762
+spring:
+  application:
+    name: eureka-cloud-server
+eureka:
+  instance:
+    hostname: slave2
+  client:
+    #    注册到上一个配置
+    default-address-resolution-order: http://slave1:8761/eureka/
+  server:
+    enable-self-preservation: false
