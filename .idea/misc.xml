@@ -8,6 +8,7 @@
         <option value="$PROJECT_DIR$/cloud-server/pom.xml" />
         <option value="$PROJECT_DIR$/cloud-provider/pom.xml" />
         <option value="$PROJECT_DIR$/cloud-invoker/pom.xml" />
+        <option value="$PROJECT_DIR$/cloud-hystrix-dashboard/pom.xml" />
       </list>
     </option>
   </component>

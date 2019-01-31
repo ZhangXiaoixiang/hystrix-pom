@@ -1,11 +1,14 @@
 package com.demo.eureka.invoker.api;
 
+import com.demo.eureka.invoker.feignandhystrix.HelloClient;
 import com.demo.eureka.invoker.feignapi.PersonClient;
 import com.demo.eureka.invoker.hystrix.PersonService;
 import com.demo.eureka.invoker.hystrix.cache.CacheService;
 import com.demo.eureka.invoker.hystrix.collapse.ConllapseServicer;
 import com.demo.eureka.invoker.model.Person;
 import com.demo.eureka.invoker.ribbon.MyLoadBalanced;
+import com.netflix.hystrix.HystrixCircuitBreaker;
+import com.netflix.hystrix.HystrixCommandKey;
 import com.netflix.loadbalancer.ZoneAwareLoadBalancer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.client.ServiceInstance;
@@ -241,6 +244,24 @@ public class InvokerApi {
         System.out.println(person3.toString());
         return "查看idea控制台";
 
+    }
+//    ----------------整合feign-----------------------
+
+    /**
+     * 编译器报错这里暂时不管
+     */
+    @Autowired
+    HelloClient helloClient;
+
+    @RequestMapping(value = "/feign/hello", method = RequestMethod.GET)
+    public String feignHello() {
+        System.out.println("API执行了-------------");
+//        hello方法会超时
+        String hello = helloClient.hello();
+//        获取断路器
+        HystrixCircuitBreaker breaker = HystrixCircuitBreaker.Factory.getInstance(HystrixCommandKey.Factory.asKey("HelloClient#hello()"));
+        System.out.println("断路器的状态:" + breaker.isOpen());
+        return hello;
     }
 
 

@@ -1,8 +1,11 @@
 package com.demo.eureka.provider;
 
+import com.netflix.hystrix.contrib.metrics.eventstream.HystrixMetricsStreamServlet;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
+import org.springframework.boot.web.servlet.ServletRegistrationBean;
 import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
+import org.springframework.context.annotation.Bean;
 
 import java.util.Scanner;
 
@@ -10,8 +13,29 @@ import java.util.Scanner;
 @SpringBootApplication(scanBasePackages="com"/*,exclude = DataSourceAutoConfiguration.class*/)
 @EnableEurekaClient
 public class EurekaProviderApplication {
+    /**
+     * 监控台需要,url和以前版本不一样
+     * @return
+     */
+    @Bean
+    public ServletRegistrationBean getServlet(){
 
+        HystrixMetricsStreamServlet streamServlet = new HystrixMetricsStreamServlet();
+
+        ServletRegistrationBean registrationBean = new ServletRegistrationBean(streamServlet);
+
+        registrationBean.setLoadOnStartup(1);
+
+        registrationBean.addUrlMappings("/actuator/hystrix.stream");
+
+        registrationBean.setName("HystrixMetricsStreamServlet");
+
+
+        return registrationBean;
+    }
     public static void main(String[] args) {
+
+
 
         System.out.println("提供者发布服务: http://localhost:服务端口号(2次一致)");
         System.out.println("请输入提供者端口号:8080还是8081");

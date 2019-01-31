@@ -6,6 +6,7 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
+        <module name="cloud-hystrix-dashboard" />
         <module name="cloud-invoker" />
         <module name="cloud-provider" />
         <module name="cloud-server" />
@@ -15,6 +16,7 @@
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="cloud-hystrix-dashboard" options="-parameters" />
       <module name="cloud-invoker" options="-parameters" />
       <module name="cloud-provider" options="-parameters" />
       <module name="cloud-server" options="-parameters" />

@@ -19,3 +19,20 @@ provider:
     NFLoadBalancerRuleClassName: com.demo.eureka.invoker.ribbon.MyRule
     NFLoadBalancerPingClassName: com.demo.eureka.invoker.ribbon.MyPing
     listOfServers: http://localhost:8080/,http://localhost:8081/
+    #开启对hystrix的支持
+feign:
+  hystrix:
+    enabled: true
+#配置其他
+hystrix:
+  command:
+    HelloClient#hello():
+      execution:
+        isolation:
+          thread:
+            timeoutInMilliseconds: 500
+      circuitBreaker:
+        requestVolumeThreshold: 3
+
+
+

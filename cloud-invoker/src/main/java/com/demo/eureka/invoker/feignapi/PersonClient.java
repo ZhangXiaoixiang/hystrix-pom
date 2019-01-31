@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
  * @author 10905 2019/1/30
  * @version 1.0
  */
-@FeignClient("provider")
+@FeignClient(name = "provider")
 public interface PersonClient {
     @RequestMapping(method = RequestMethod.GET, value = "/hello")
     String hello();
